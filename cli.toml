@@ -1,0 +1,146 @@
+# Enums
+
+enums.feature_model = ["RESNET", "CM", "HOG", "AvgPool", "L3", "FC"]
+enums.dimensionality_reduction_technique = ["SVD", "NNMF", "LDA", "kmeans"]
+enums.label = ['gerenuk', 'hawksbill', 'headphone', 'ant', 'butterfly', 'lamp', 'strawberry', 'water_lilly', 'chandelier', 'dragonfly', 'crab', 'pagoda', 'dollar_bill', 'emu', 'inline_skate', 'platypus', 'dalmatian', 'cup', 'airplanes', 'joshua_tree', 'cougar_body', 'grand_piano', 'trilobite', 'brontosaurus', 'wild_cat', 'pigeon', 'dolphin', 'soccer_ball', 'wrench', 'scorpion', 'flamingo_head', 'nautilus', 'accordion', 'cougar_face', 'pyramid', 'camera', 'barrel', 'schooner', 'cellphone', 'panda', 'revolver', 'lobster', 'menorah', 'lotus', 'stapler', 'crocodile', 'chair', 'helicopter', 'minaret', 'starfish', 'ceiling_fan', 'ketch', 'mayfly', 'wheelchair', 'bass', 'yin_yang', 'crocodile_head', 'saxophone', 'beaver', 'mandolin', 'bonsai', 'Leopards', 'car_side', 'ibis', 'electric_guitar', 'kangaroo', 'stegosaurus', 'ferry', 'snoopy', 'umbrella', 'rhino', 'okapi', 'watch', 'brain', 'gramophone', 'scissors', 'rooster', 'cannon', 'binocular', 'anchor', 'octopus', 'buddha', 'laptop', 'windsor_chair', 'hedgehog', 'pizza', 'euphonium', 'stop_sign', 'Motorbikes', 'sea_horse', 'flamingo', 'ewer', 'garfield', 'crayfish', 'Faces_easy', 'Faces', 'sunflower', 'llama', 'elephant', 'tick', 'metronome']
+enums.latent_semantics = ['ls1', 'ls2', 'ls3', 'ls4']
+# Removed 'BACKGROUND_Google' as all images have odd id ---> No image or label FDs
+
+# Tasks
+
+[tasks.0]
+description = '''
+Implement a program which computes and prints the “inherent dimensionality” associated with the even numbered Caltec101 images or each unique label of the even numbered Caltec101 images.
+'''
+usage = ""
+
+    [[tasks.0.args]]
+    id = "label"
+    type = "bool"
+    description = "Uses label vectors if this is specified"
+
+    [[tasks.0.args]]
+    id = "image"
+    type = "bool"
+    enum = "feature_model"
+    description = "Uses image vectors if this is specified"
+
+[tasks.1]
+description = '''
+Implement a program which,
+    – for each unique label l, computes the corresponding k latent semantics (of your choice) associated with the even
+numbered Caltec101 images, and
+    – for the odd numbered images, predicts the most likely labels using distances/similarities computed under the
+label-specific latent semantics.
+The system should also output per-label precision, recall, and F1-score values as well as output an overall accuracy
+value.
+'''
+usage = ""
+
+    [[tasks.1.args]]
+    id = "image_id"
+    type = "int"
+    description = "Query image ID"
+
+    [[tasks.1.args]]
+    id = "k"
+    type = "int"
+    description = "top-k latent semantics"
+
+
+[tasks.2]
+description = '''
+Implement a program which,
+    – for each unique label l, computes the correspending c most significant clusters associated with the even numbered Caltec101 images (using DBScan algorithm); the resulting clusters should be visualized both
+        ∗ as differently colored point clouds in a 2-dimensional MDS space, and
+        ∗ as groups of image thumbnails. and
+ 
+    – for the odd numbered images, predicts the most likely labels using the c label-specific clusters.
+
+The system should also output per-label precision, recall, and F1-score values as well as output an overall accuracy
+value.
+'''
+usage = ""
+
+    [[tasks.2.args]]
+    id = "image_id"
+    type = "int"
+    description = "Query image ID"
+
+    [[tasks.2.args]]
+    id = "c"
+    type = "int"
+    description = "C significant clusters"
+
+[tasks.3]
+description = '''
+Implement a program which,
+    – given even-numbered Caltec101 images,
+        ∗ creates an m-NN classifer (for a user specified m),
+        ∗ creates a decision-tree classifier,
+        ∗ creates a PPR based clasifier.
+        For this task, you can use feature space of your choice.
+    – for the odd numbered images, predicts the most likely labels using the user selected classifier.
+
+The system should also output per-label precision, recall, and F1-score values as well as output an overall accuracy
+value.
+'''
+usage = ""
+
+    [[tasks.3.args]]
+    id = "m"
+    type = "int"
+    description = "m nearest neighbors for NN classifier"
+
+    [[tasks.3.args]]
+    id = "image_id"
+    type = "int"
+    description = "Query image ID"
+
+[tasks.4]
+description = '''
+    - Implement a Locality Sensitive Hashing (LSH) tool (for Euclidean distance) which takes as input 
+        (a) the number of layers, L
+        (b) the number of hashes per layer, h
+        (c) a set of vectors as input and creates an in-memory index structure containing the given set of vectors.
+    - Implement a similar image search algorithm using this index structure storing the even numbered Caltec101 images and a visual model of your choice (the combined visual model must have at least 256 dimensions): for a given query image and integer t
+        - Visualizes t most similar images
+        - outputs the number of unique and overall number of images considered during the process
+
+'''
+usage = ""
+
+    [[tasks.4.args]]
+    id = "L"
+    type = "int"
+    description = "number of layers"
+
+    [[tasks.4.args]]
+    id = "h"
+    type = "int"
+    description = "number of hashes"
+
+    [[tasks.4.args]]
+    id = "t"
+    type = "int"
+    description = "t most similar images"
+
+    [[tasks.4.args]]
+    id = "image_id"
+    type = "int"
+    description = "Query image ID"
+
+[tasks.5]
+description = '''
+Let us consider the tag set “Very Relevant (R+)”, “Relevant (R)”, “Irrelevant (I)”, and “Very Irrelevant (I-)”. Implement
+    – an SVM based relevance feedback system,
+    – a probabilistic relevance feedback system
+which enable the user to tag some of the results returned by 4b as and then return a new set of ranked results, relying on the feedback system selected by the user, either by revising the query or by re-ordering the existing results.
+'''
+usage = ""
+
+    [[tasks.5.args]]
+    id = "relevance_feedback_system"
+    type = "str"
+    description = "Type of relevance feedback system - SVM or probabilistic"
+
