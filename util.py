@@ -44,24 +44,6 @@ class Constants:
     #Caltech Data Path
     CALTECH_DATASET_LOCATION = os.path.join(PATH_REPO, "Data")
 
-    #feature vectors
-    FEAT_VECTORS_LOCATION = os.path.join(PATH_REPO,"Outputs","features")
-    FEAT_COLOR_MOMENTS_LOCATION = os.path.join(FEAT_VECTORS_LOCATION,COLOR_MOMENTS)
-    FEAT_HOG_LOCATION = os.path.join(FEAT_VECTORS_LOCATION,HOG)
-    FEAT_RESNET_LAYER3_1024_LOCATION = os.path.join(FEAT_VECTORS_LOCATION,ResNet_Layer3_1024)
-    FEAT_RESNET_FC_1000_LOCATION = os.path.join(FEAT_VECTORS_LOCATION,ResNet_FC_1000)
-    FEAT_RESNET_AVGPOOL_1024_LOCATION = os.path.join(FEAT_VECTORS_LOCATION, ResNet_AvgPool_1024)
-    FEAT_RESNET_SOFTMAX_1000_LOCATION = os.path.join(FEAT_VECTORS_LOCATION, ResNet_SoftMax_1000)
-
-    #labels
-    LBL_FEAT_VECTORS_LOCATION = os.path.join(PATH_REPO,"Outputs","labels")
-    LBL_COLOR_MOMENTS_LOCATION = os.path.join(LBL_FEAT_VECTORS_LOCATION,COLOR_MOMENTS)
-    LBL_HOG_LOCATION = os.path.join(LBL_FEAT_VECTORS_LOCATION,HOG)
-    LBL_RESNET_LAYER3_1024_LOCATION = os.path.join(LBL_FEAT_VECTORS_LOCATION,ResNet_Layer3_1024)
-    LBL_RESNET_FC_1000_LOCATION = os.path.join(LBL_FEAT_VECTORS_LOCATION,ResNet_FC_1000)
-    LBL_RESNET_AVGPOOL_1024_LOCATION = os.path.join(LBL_FEAT_VECTORS_LOCATION, ResNet_AvgPool_1024)
-    LBL_RESNET_SOFTMAX_1000_LOCATION = os.path.join(LBL_FEAT_VECTORS_LOCATION, ResNet_SoftMax_1000)
-
     # task_outputs
     TASK_0_LOCATION = os.path.join(PATH_REPO, "Outputs", "tasks", "task_0")
     TASK_1_LOCATION = os.path.join(PATH_REPO, "Outputs", "tasks", "task_1")
