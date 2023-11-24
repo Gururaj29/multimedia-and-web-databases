@@ -1,6 +1,7 @@
 import os
 import math
 import numpy as np
+from tabulate import tabulate
 
 from PIL import Image
 
@@ -124,3 +125,58 @@ def check_image(image) :
     if(len(img_array.shape) == 3) :
         return True
     return False
+
+class ConfusionMatrix:
+    def __init__(self, TP=0, TN=0, FP=0, FN=0):
+        self.TP = TP
+        self.TN = TN
+        self.FP = FP
+        self.FN = FN
+    
+    def incrementTruePositive(self, delta=1):
+        self.TP += 1
+    
+    def incrementFalsePositive(self, delta=1):
+        self.FP += 1
+    
+    def incrementFalseNegative(self, delta=1):
+        self.FN += 1
+
+    def getPrecision(self):
+        return self.TP * 100 / (self.TP + self.FP) if self.TP+self.FP != 0 else 0
+    
+    def getRecall(self):
+        return self.TP * 100 / (self.TP + self.FN) if self.TP+self.FN != 0 else 0
+
+
+def AnalysePredictions(db, predicted_labels):
+    '''
+        Performs analysis on the image label predicions and prints precision, recall and F1 score for each label and prints overall accuracy
+        Input:
+            db: instance of storage.Database
+            predicted_labels: dictionary of image_id (int) -> label_id (str)
+    '''
+    harmonic_mean = lambda p, h: 2*h*p/(p+h)
+    float_to_percent = lambda f: "%.2f"%f + '%'
+
+    # TODO: Replace this with a method that only fetches image_id-label_id pair for all odd numbered images
+    true_labels = db.get_id_label_dict()
+    all_labels = set(predicted_labels.values()) | set(true_labels.values())
+    all_cms = {label: ConfusionMatrix() for label in all_labels}
+    for image_id, predicted_label in predicted_labels.items():
+        true_label = true_labels[image_id]
+        if true_label == predicted_label:
+            all_cms[true_label].incrementTruePositive()
+        else:
+            all_cms[true_label].incrementFalseNegative()
+            all_cms[predicted_label].incrementFalsePositive()
+    
+    table = []
+    for label, cm in all_cms.items():
+        precision, recall = cm.getPrecision(), cm.getRecall()
+        table.append([label, float_to_percent(precision), float_to_percent(recall), float_to_percent(harmonic_mean(precision, recall))])
+    
+    print(tabulate(table, headers=["Label", "Precision", "Recall", "F1 Score"], tablefmt="fancy_grid"))
+    accuracy = sum([cm.TP for cm in all_cms.values()])*100/len(predicted_labels)
+    print("Overall Accuracy: " + float_to_percent(accuracy))
+
