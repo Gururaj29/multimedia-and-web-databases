@@ -16,6 +16,9 @@ class Constants:
     ResNet_FC_1000 = "resnet_fc_1000"
     ResNet_SoftMax_1000 = "resnet_sm_1000"
 
+    DatasetTypeTrain = "train"
+    DatasetTypeTest = "test"
+
     # dimensionality reduction technique constants
     SVD = "svd"
     NNMF = "nnmf"
@@ -50,10 +53,8 @@ class Constants:
     TASK_1_LOCATION = os.path.join(PATH_REPO, "Outputs", "tasks", "task_1")
     TASK_2_LOCATION = os.path.join(PATH_REPO, "Outputs", "tasks", "task_2")
     TASK_3_LOCATION = os.path.join(PATH_REPO, "Outputs", "tasks", "task_3")
-    TASK_7_LOCATION = os.path.join(PATH_REPO, "Outputs", "tasks", "task_7")
-    TASK_8_LOCATION = os.path.join(PATH_REPO, "Outputs", "tasks", "task_8")
-    TASK_9_LOCATION = os.path.join(PATH_REPO, "Outputs", "tasks", "task_9")
-    TASK_10_LOCATION = os.path.join(PATH_REPO, "Outputs", "tasks", "task_10")
+    TASK_4_LOCATION = os.path.join(PATH_REPO, "Outputs", "tasks", "task_4")
+    TASK_5_LOCATION = os.path.join(PATH_REPO, "Outputs", "tasks", "task_5")
 
 
 def fd_cli_to_constants(fd):
