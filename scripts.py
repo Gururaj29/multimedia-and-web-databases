@@ -1,0 +1,5 @@
+from Scripts import create_feature_vectors
+from Scripts import create_label_feature_vectors
+
+create_feature_vectors.run_script()
+create_label_feature_vectors.run_script()

@@ -39,23 +39,41 @@ class Database:
                 feat_dict[int(filename[:-4].split('_',1)[0])] = read_list
         return feat_dict
     
-    def __load_id_label_dict(self) :
+    def __load_id_label_dict_for_dataset(self, datasetType) :
         data = {}
-        for filename in os.listdir(os.path.join(self.__getpath(), "Outputs","features", Constants.COLOR_MOMENTS)):
+        for filename in os.listdir(os.path.join(self.__getpath(), "Outputs", datasetType, "features", Constants.COLOR_MOMENTS)):
             if(filename[0] == '.') :
                 continue
             data[int(filename[:-4].split('_',1)[0])] = filename[:-4].split('_',1)[1] 
         return data
     
+    def __load_id_label_dict(self):
+        return {
+            Constants.DatasetTypeTrain: self.__load_id_label_dict_for_dataset(Constants.DatasetTypeTrain),
+            Constants.DatasetTypeTest: self.__load_id_label_dict_for_dataset(Constants.DatasetTypeTest)
+        }
+    
+    def __load_all_label_fds_for_dataset(self, datasetType) :
+        label_vector_location = os.path.join(self.__getpath(), "Outputs", datasetType, "labels")
+        return self.__load_all_fds(self.__load__lbl_feat_vector_util, label_vector_location)
+
     def __load_all_label_fds(self) :
         print('Loading Label Feature Vectors...')
-        label_vector_location = os.path.join(self.__getpath(), "Outputs","features")
-        return self.__load_all_fds(self.__load__lbl_feat_vector_util, label_vector_location)
+        return {
+            Constants.DatasetTypeTrain: self.__load_all_label_fds_for_dataset(Constants.DatasetTypeTrain),
+            Constants.DatasetTypeTest: self.__load_all_label_fds_for_dataset(Constants.DatasetTypeTest)
+        }
     
+    def __load_all_image_fds_for_dataset(self, datasetType):
+        feat_vector_location = os.path.join(self.__getpath(), "Outputs", datasetType, "features")
+        return self.__load_all_fds(self.__load_feat_vector_util, feat_vector_location)
+
     def __load_all_image_fds(self):
         print('Loading Image Feature Vectors...')
-        feat_vector_location = os.path.join(self.__getpath(), "Outputs","features")
-        return self.__load_all_fds(self.__load_feat_vector_util, feat_vector_location)
+        return {
+            Constants.DatasetTypeTrain: self.__load_all_image_fds_for_dataset(Constants.DatasetTypeTrain),
+            Constants.DatasetTypeTest: self.__load_all_image_fds_for_dataset(Constants.DatasetTypeTest)
+        }
     
     def __load_all_fds(self, reader, path):
         data = {}
@@ -90,20 +108,23 @@ class Database:
             self.similarity_matrices = self.__load_similarity_matrices()
             self.id_label_dict = self.__load_id_label_dict()
 
-    def get_feature_descriptors(self, fd):
-        if fd not in self.feature_descriptors:
+    def get_feature_descriptors(self, fd, train_data=True):
+        datasetType = Constants.DatasetTypeTrain if train_data else Constants.DatasetTypeTest
+        if datasetType not in self.feature_descriptors or fd not in self.feature_descriptors[datasetType]:
             return {}
-        return self.feature_descriptors[fd]
+        return self.feature_descriptors[datasetType][fd]
 
-    def get_label_feature_descriptors(self, fd):
-        if fd not in self.label_feature_descriptors:
+    def get_label_feature_descriptors(self, fd, train_data=True):
+        datasetType = Constants.DatasetTypeTrain if train_data else Constants.DatasetTypeTest
+        if datasetType not in self.label_feature_descriptors or fd not in self.label_feature_descriptors[datasetType]:
             return {}
-        return self.label_feature_descriptors[fd]
+        return self.label_feature_descriptors[datasetType][fd]
     
-    def get_id_label_dict(self):
-        if not self.id_label_dict:
+    def get_id_label_dict(self, train_data=True):
+        datasetType = Constants.DatasetTypeTrain if train_data else Constants.DatasetTypeTest
+        if not self.id_label_dict or datasetType not in self.id_label_dict:
             return {}
-        return self.id_label_dict
+        return self.id_label_dict[datasetType]
     
     def write_latent_semantics_into_file(self, ls, fd, drt, k, ids, latent_semantics_mat, data):
         # also update in internal dictionaries
