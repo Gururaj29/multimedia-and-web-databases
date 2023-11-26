@@ -21,6 +21,7 @@ class DecisionTree:
         self.root=None
 
     def fit(self, X, y):
+        X, y = np.array(X), np.array(y)
         self.n_features = X.shape[1] if not self.n_features else min(X.shape[1],self.n_features)
         self.root = self._grow_tree(X, y)
 

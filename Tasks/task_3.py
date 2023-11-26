@@ -43,7 +43,7 @@ def get_classifier(arguments):
         return "%s_%d"%(classifier_type, arguments.get('m')), nn.NN(arguments.get('m'))
     elif classifier_type == util.Constants.PersonalizedPageRankClassifier:
         return "%s_%.2f"%(classifier_type, arguments.get('p')), ppr.PPR(arguments.get('p'))
-    return classifier_type, util.Constants.DecisionTreeClassifier, decision_trees.DecisionTree()
+    return classifier_type, decision_trees.DecisionTree()
 
 def execute_internal(classifier_namespace, classifier, query_image_ids, db, debug=False):
     start_time = time.time()

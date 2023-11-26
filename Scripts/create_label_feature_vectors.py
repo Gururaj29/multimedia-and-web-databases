@@ -14,7 +14,6 @@ def getLabelFeat(db, fd, id_labels, isEvenNumbered):
         for id in img_ids:
             if id in feat:
                 lab_all.append(feat[id])
-        print(id, label, isEvenNumbered, len(lab_all))
         lab_all = np.array(lab_all)
         mean_lab_all = lab_all.mean(axis=0)
         feat_mean[label] = mean_lab_all
