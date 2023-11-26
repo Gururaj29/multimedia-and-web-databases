@@ -70,8 +70,8 @@ def execute_internal(classifier_namespace, classifier, query_image_ids, db, debu
 
     util.AnalysePredictions(db, predictions)
 
-    pathlib.Path(util.Constants.TASK_4_LOCATION).mkdir(parents=True, exist_ok=True)
-    pd.DataFrame(output_data).set_index("Image IDs").to_csv(os.path.join(util.Constants.TASK_4_LOCATION, '%s.csv'%classifier_namespace))
+    pathlib.Path(util.Constants.TASK_3_LOCATION).mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(output_data).set_index("Image IDs").to_csv(os.path.join(util.Constants.TASK_3_LOCATION, '%s.csv'%classifier_namespace))
 
     end_time = time.time()
     if debug:

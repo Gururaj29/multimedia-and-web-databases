@@ -38,7 +38,7 @@ def load_data():
     db = storage.Database()
     return db
 
-NUM_TASKS = 6
+NUM_TASKS = 5
 
 with open("cli.toml", "r") as config_file:
     cli_config = toml.load(config_file)
