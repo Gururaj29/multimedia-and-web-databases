@@ -56,9 +56,15 @@ class Constants:
     DecisionTreeClassifier = "DecisionTreeClassifier"
     PersonalizedPageRankClassifier = "PersonalizedPageRankClassifier"
 
-    # Relevance Feedback
-    SVM = "SVM"
-    PRFS = "probabilistic"
+    # RelevanceFeedbackSystems
+    SVMRelevanceFeedbackSystem = "SVM"
+    ProbabilisticRelevanceFeedbackSystem = "ProbabilisticRelevanceFeedbackSystem"
+
+    # RelevanceTags
+    Relevant = "Relevant"
+    VeryRelevant = "VeryRelevant"
+    Irrelevant = "Irrelevant"
+    VeryIrrelevant = "VeryIrrelevant"
 
     # task_outputs
     TASK_0_LOCATION = os.path.join(PATH_REPO, "Outputs", "tasks", "task_0")
@@ -98,6 +104,14 @@ def classifier_cli_to_constants(classifier):
         "PPR": Constants.PersonalizedPageRankClassifier,
     }
     return classifier_cli_to_constants_map[classifier]
+
+def rfs_cli_to_constants(classifier):
+    rfs_cli_to_constants_map = {
+        "svm": Constants.SVMRelevanceFeedbackSystem,
+        "prob": Constants.ProbabilisticRelevanceFeedbackSystem,
+        None: None,
+    }
+    return rfs_cli_to_constants_map[classifier]
 
 def cube_root(x) :
     if(x >= 0) :
