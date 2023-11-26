@@ -1,7 +1,7 @@
 import itertools
 import warnings
 
-import cvxopt # might need to change this
+import cvxopt
 import numpy as np
 from matplotlib import pyplot as plt
 

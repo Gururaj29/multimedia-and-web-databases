@@ -13,7 +13,7 @@ def execute_internal(img_id_tag, rfs, db, debug=False):
         Here, the image_id-tag pairs will be used to either 
         1. train an SVM, or
         2. rerank using the probabilistic model
-        First, we need the image features which we will pass to specific relevance feedback system (rfs)
+        First, we need the image features, which we will pass to specific relevance feedback system (RFS)
     '''
 
     return
