@@ -184,6 +184,7 @@ def get_feature_model(task_id):
     }
     return feature_models_for_task[task_id]
 
+# This is a method used for sampled logging. If you are expecting too many logs, you can use this method to print the log with a small probability p
 def sampled_log(p, log):
     if random.random() > 1-p:
         print(log)

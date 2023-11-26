@@ -13,8 +13,8 @@ TASK_ID = 3
 def Execute(arguments, db):
     if not validate_input_arguments(arguments):
         return
-    classifier, query_image_ids = extract_arguments(arguments)
-    execute_internal(classifier, query_image_ids, db)
+    classifier_namespace, classifier, query_image_ids = extract_arguments(arguments)
+    execute_internal(classifier_namespace, classifier, query_image_ids, db)
 
 def validate_input_arguments(arguments):
     if 'classifier' not in arguments or not arguments['classifier']:
@@ -33,18 +33,19 @@ def extract_arguments(arguments):
     input_images = []
     if arguments.get('image_ids'):
         input_images = list(map(int, arguments['image_ids'].split(',')))
-    return get_classifier(arguments), input_images
+    classifier_namespace, classifier = get_classifier(arguments)
+    return classifier_namespace, classifier, input_images
     
     
 def get_classifier(arguments):
     classifier_type = util.classifier_cli_to_constants(arguments['classifier'])
     if classifier_type == util.Constants.NearestNeighborClassifier:
-        return nn.NN(arguments.get('m'))
+        return "%s_%d"%(classifier_type, arguments.get('m')), nn.NN(arguments.get('m'))
     elif classifier_type == util.Constants.PersonalizedPageRankClassifier:
-        return ppr.PPR(arguments.get('p'))
-    return decision_trees.DecisionTree()
+        return "%s_%.2f"%(classifier_type, arguments.get('p')), ppr.PPR(arguments.get('p'))
+    return classifier_type, util.Constants.DecisionTreeClassifier, decision_trees.DecisionTree()
 
-def execute_internal(classifier, query_image_ids, db, debug=False):
+def execute_internal(classifier_namespace, classifier, query_image_ids, db, debug=False):
     start_time = time.time()
 
     fd = util.get_feature_model(TASK_ID)
@@ -70,7 +71,7 @@ def execute_internal(classifier, query_image_ids, db, debug=False):
     util.AnalysePredictions(db, predictions)
 
     pathlib.Path(util.Constants.TASK_4_LOCATION).mkdir(parents=True, exist_ok=True)
-    pd.DataFrame(output_data).set_index("Image IDs").to_csv(os.path.join(util.Constants.TASK_4_LOCATION, 'output.csv'))
+    pd.DataFrame(output_data).set_index("Image IDs").to_csv(os.path.join(util.Constants.TASK_4_LOCATION, '%s.csv'%classifier_namespace))
 
     end_time = time.time()
     if debug:
