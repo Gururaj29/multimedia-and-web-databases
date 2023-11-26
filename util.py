@@ -181,6 +181,7 @@ def AnalysePredictions(db, predicted_labels):
 def get_feature_model(task_id):
     feature_models_for_task = {
         3: Constants.ResNet_FC_1000,
+        4: Constants.ResNet_FC_1000,
     }
     return feature_models_for_task[task_id]
 
