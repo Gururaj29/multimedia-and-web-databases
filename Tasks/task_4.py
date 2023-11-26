@@ -108,8 +108,8 @@ def perform_lsh_search(lshSearch, qs):
 
 def run_relevance_feedback_loop(rfs, qs, search, data):
     tagging_prompt(qs, qs.query_k_best_results)
-    X, Y = qs.getImagesAndTags() # for RFS models
-    rfs.fit(X, Y)
+    images, tags = qs.getImagesAndTags() # for RFS models
+    rfs.fit([data[image] for image in images], tags)
     while not qs.gotKRelevantImages():
         perform_lsh_search(search, qs)
         predict_tags(qs, rfs, data)
