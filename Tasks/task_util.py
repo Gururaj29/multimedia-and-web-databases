@@ -2,7 +2,7 @@ from util import Constants
 import matplotlib.pyplot as plt
 import torchvision
 
-def visualizeKSimilarImages(query_image_id, k_similar_images):
+def visualizeKSimilarImages(query_image_id, k_similar_images, k_tags=[], output_filepath=""):
     imagenet_data = torchvision.datasets.Caltech101(root=Constants.CALTECH_DATASET_LOCATION, download=True)
     fig = plt.figure()
     plt.axis('off')
@@ -20,5 +20,9 @@ def visualizeKSimilarImages(query_image_id, k_similar_images):
         plt.subplots_adjust(wspace=None, hspace=None)
         plt.imshow(imagenet_data[image_id][0].resize((200,200)))
         plt.title('id : ' + str(image_id), fontsize=10, pad=-2)
+        if k_tags and k_tags[i]:
+            plt.text(5, 220, k_tags[i])
     fig.suptitle("%d most similar images for image id: %d"%(len(k_similar_images), query_image_id), fontsize=16)
+    if output_filepath:
+        fig.savefig(output_filepath, bbox_inches="tight")
     plt.show()

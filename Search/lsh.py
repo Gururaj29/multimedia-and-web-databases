@@ -119,7 +119,8 @@ class LSH:
         def getUniqueNumberofImagesFetched(self):
             return len(reduce(operator.or_, map(lambda x: x.getUniqueSearchImages(), self.layerSearches)))
         
-        def getFilteredResults(self):
+        def getFilteredResults(self, exclude_set=()):
+            exclude_set = exclude_set if exclude_set else self.exclude_set
             return self.results - self.exclude_set
 
         def search(self, exclude_set=set()):
@@ -129,9 +130,9 @@ class LSH:
                 self.results = self.fetchNext()
             return self.getFilteredResults()
         
-        def bestKResults(self, data):
+        def bestKResults(self, data, exclude_set=set()):
             if not self.results: self.search()
-            return heapq.nlargest(self.k, self.getFilteredResults(), key=lambda x: similarity_measures.l2_norm(data[x], self.query_vector))
+            return heapq.nlargest(self.k, self.getFilteredResults(exclude_set), key=lambda x: similarity_measures.l2_norm(data[x], self.query_vector))
         
         def printSearchAnalytics(self):
             if not self.results: self.search()
