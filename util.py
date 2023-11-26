@@ -56,6 +56,10 @@ class Constants:
     DecisionTreeClassifier = "DecisionTreeClassifier"
     PersonalizedPageRankClassifier = "PersonalizedPageRankClassifier"
 
+    # Relevance Feedback
+    SVM = "SVM"
+    PRFS = "probabilistic"
+
     # task_outputs
     TASK_0_LOCATION = os.path.join(PATH_REPO, "Outputs", "tasks", "task_0")
     TASK_1_LOCATION = os.path.join(PATH_REPO, "Outputs", "tasks", "task_1")
