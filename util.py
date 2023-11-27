@@ -212,3 +212,6 @@ def show_image(image_id):
     imagenet_data = torchvision.datasets.Caltech101(root=Constants.CALTECH_DATASET_LOCATION, download=True)
     plt.imshow(imagenet_data[int(image_id)][0].resize((200,200)))
     plt.show()
+
+def euclidean_distance(v1, v2):
+    return np.linalg.norm(np.array(v1) - np.array(v2))
