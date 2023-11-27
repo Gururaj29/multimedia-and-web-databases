@@ -70,9 +70,9 @@ def get_most_likely_labels(cluster, image_vector, label_train_data, cluster_sign
     c_significant_clusters = cluster.getCSignicantClusters(image_vector)
     likely_labels = set(label_train_data.keys())
     for i in range(len(c_significant_clusters)):
-        next_label_labels = likely_labels & cluster_significance_list[i][c_significant_clusters[i]]
-        if len(next_label_labels) == 0: break
-        likely_labels = next_label_labels
+        next_likely_labels = likely_labels & cluster_significance_list[i][c_significant_clusters[i]]
+        if len(next_likely_labels) == 0: break
+        likely_labels = next_likely_labels
     return likely_labels
 
 def predict_label_from_most_likely_labels(image_vector, label_train_data, likely_labels):
