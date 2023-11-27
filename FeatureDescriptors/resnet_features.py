@@ -16,7 +16,7 @@ class MultiOutputModel(nn.Module):
         self.output_layers = output_layers
         self.selected_out = OrderedDict()
         #PRETRAINED MODEL
-        self.pretrained = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
+        self.pretrained = models.resnet50(pretrained=True)
         self.fhooks = []
 
         for i,l in enumerate(list(self.pretrained._modules.keys())):

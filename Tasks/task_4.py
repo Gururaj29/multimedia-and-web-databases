@@ -1,7 +1,7 @@
 from Search import lsh
 import util
 from Tasks import task_util
-from Classifiers import svm
+from Classifiers import svm, multiclass_svm
 import os
 import pathlib
 
@@ -79,7 +79,7 @@ def Execute(arguments, db):
 def get_relevence_feedback_system(rfs_cli):
     rfs_type = util.rfs_cli_to_constants(rfs_cli)
     if rfs_type == util.Constants.SVMRelevanceFeedbackSystem:
-        return rfs_type, svm.SVM()
+        return rfs_type, multiclass_svm.MulticlassSVM(kernel="linear")
     elif rfs_type == util.Constants.ProbabilisticRelevanceFeedbackSystem:
         # TODO: replace this with prob RFS
         return rfs_type, svm.SVM()
@@ -110,7 +110,7 @@ def run_relevance_feedback_loop(rfs, qs, search, data):
     tagging_prompt(qs, qs.query_k_best_results)
     images, tags = qs.getImagesAndTags() # for RFS models
     rfs.fit([data[image] for image in images], tags)
-    while not qs.gotKRelevantImages():
+    while not qs.gotKRelevantImages() and qs.iter <= 100: # kept limit on the number of iterations for now
         perform_lsh_search(search, qs)
         predict_tags(qs, rfs, data)
     qs.setKBestResults(search.bestKResults(data, qs.getSearchExcludeSet()))
@@ -124,6 +124,7 @@ def predict_tags(qs, rfs, data):
     for image_id in qs.query_results:
         if not qs.getImageTag(image_id):
             tag = rfs.predict(data[image_id])
+            # print("Tag predicted for image-id " + str(image_id) + ": " + tag)
             image_ids_with_updated_tags.append(image_id)
             tags.append(tag)
     qs.setTags(image_ids_with_updated_tags, tags, predicted = True)
@@ -142,7 +143,7 @@ def format_print_message_for_task(message):
 
 def boolean_prompt(message):
     inp = input(format_print_message_for_task("%s (Y/n)?"%message))
-    return inp == "Y"
+    return inp == "Y" or inp == "y" or inp == "yes" or inp == "Yes"
 
 def tagging_prompt(qs, image_ids):
     input_to_constants_map = {
