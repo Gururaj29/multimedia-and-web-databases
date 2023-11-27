@@ -8,7 +8,7 @@ class DBScan:
     '''
         implements DBScan algorithm and also gives C significant clusters
     '''
-    def __init__(self, data, c, min_samples=2, eps=2.4, distances_df=None):
+    def __init__(self, data, c, min_samples=4, eps=2.5, distances_df=None):
         self.c = c
         self.min_samples = min_samples
         self.eps = eps
