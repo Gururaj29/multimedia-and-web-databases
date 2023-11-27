@@ -110,7 +110,7 @@ def run_relevance_feedback_loop(rfs, qs, search, data):
     tagging_prompt(qs, qs.query_k_best_results)
     images, tags = qs.getImagesAndTags() # for RFS models
     rfs.fit([data[image] for image in images], tags)
-    while not qs.gotKRelevantImages():
+    while not qs.gotKRelevantImages() and qs.iter <= 100: # kept limit on the number of iterations for now
         perform_lsh_search(search, qs)
         predict_tags(qs, rfs, data)
     qs.setKBestResults(search.bestKResults(data, qs.getSearchExcludeSet()))
@@ -124,7 +124,7 @@ def predict_tags(qs, rfs, data):
     for image_id in qs.query_results:
         if not qs.getImageTag(image_id):
             tag = rfs.predict(data[image_id])
-            print("Tag predicted for image-id " + str(image_id) + ": " + tag)
+            # print("Tag predicted for image-id " + str(image_id) + ": " + tag)
             image_ids_with_updated_tags.append(image_id)
             tags.append(tag)
     qs.setTags(image_ids_with_updated_tags, tags, predicted = True)

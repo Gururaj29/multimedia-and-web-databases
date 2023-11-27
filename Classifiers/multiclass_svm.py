@@ -114,6 +114,8 @@ class MulticlassSVM:
 
         for i in range(0, self._labels.shape[0] - 1):
             for j in range(i + 1, self._labels.shape[0]):
+                if not len(x_arranged_numpy[i].shape) == 2 or not len(x_arranged_numpy[j].shape) == 2:
+                    continue
                 current_x = np.concatenate((x_arranged_numpy[i], x_arranged_numpy[j]))
                 current_y = np.concatenate((- np.ones((len(x_arranged_numpy[i]),), dtype=int),
                                            np.ones(len((x_arranged_numpy[j]),), dtype=int)))
@@ -145,7 +147,8 @@ class MulticlassSVM:
             String Result of the voting scheme in terms of tags.
         """
         x = [x]
-        voting_schema = np.zeros([len(x), 2, self._labels.shape[0]], dtype=float)
+        # voting_schema = np.zeros([len(x), 2, self._labels.shape[0]], dtype=float) - might need after all the tests
+        voting_schema = np.zeros([len(x), 2, 4], dtype=float)
         for svm_tuple in self._svm_list:
             prediction = [svm_tuple[0].project(np.array(x))]
             for i in range(len(prediction)):
