@@ -2,6 +2,9 @@ import os
 import math
 import numpy as np
 from tabulate import tabulate
+import random
+import torchvision
+import matplotlib.pyplot as plt
 
 from PIL import Image
 
@@ -48,6 +51,21 @@ class Constants:
     #Caltech Data Path
     CALTECH_DATASET_LOCATION = os.path.join(PATH_REPO, "Data")
 
+    # Classifiers
+    NearestNeighborClassifier = "NearestNeighborClassifier"
+    DecisionTreeClassifier = "DecisionTreeClassifier"
+    PersonalizedPageRankClassifier = "PersonalizedPageRankClassifier"
+
+    # RelevanceFeedbackSystems
+    SVMRelevanceFeedbackSystem = "SVM"
+    ProbabilisticRelevanceFeedbackSystem = "ProbabilisticRelevanceFeedbackSystem"
+
+    # RelevanceTags
+    Relevant = "Relevant"
+    VeryRelevant = "VeryRelevant"
+    Irrelevant = "Irrelevant"
+    VeryIrrelevant = "VeryIrrelevant"
+
     # task_outputs
     TASK_0_LOCATION = os.path.join(PATH_REPO, "Outputs", "tasks", "task_0")
     TASK_1_LOCATION = os.path.join(PATH_REPO, "Outputs", "tasks", "task_1")
@@ -78,6 +96,22 @@ def drt_cli_to_constants(drt):
         None: Constants.CP
     }
     return drt_cli_to_constants_map[drt]
+
+def classifier_cli_to_constants(classifier):
+    classifier_cli_to_constants_map = {
+        "NN": Constants.NearestNeighborClassifier,
+        "DT": Constants.DecisionTreeClassifier,
+        "PPR": Constants.PersonalizedPageRankClassifier,
+    }
+    return classifier_cli_to_constants_map[classifier]
+
+def rfs_cli_to_constants(classifier):
+    rfs_cli_to_constants_map = {
+        "svm": Constants.SVMRelevanceFeedbackSystem,
+        "prob": Constants.ProbabilisticRelevanceFeedbackSystem,
+        None: None,
+    }
+    return rfs_cli_to_constants_map[classifier]
 
 def cube_root(x) :
     if(x >= 0) :
@@ -144,6 +178,7 @@ def AnalysePredictions(db, predicted_labels):
 
     # TODO: Replace this with a method that only fetches image_id-label_id pair for all odd numbered images
     true_labels = db.get_id_label_dict(False) | db.get_id_label_dict(True)
+
     all_labels = set(predicted_labels.values()) | set(true_labels.values())
     all_cms = {label: ConfusionMatrix() for label in all_labels}
     for image_id, predicted_label in predicted_labels.items():
@@ -163,3 +198,19 @@ def AnalysePredictions(db, predicted_labels):
     accuracy = sum([cm.TP for cm in all_cms.values()])*100/len(predicted_labels)
     print("Overall Accuracy: " + float_to_percent(accuracy))
 
+def get_feature_model(task_id):
+    feature_models_for_task = {
+        3: Constants.ResNet_Layer3_1024,
+        4: Constants.ResNet_FC_1000,
+    }
+    return feature_models_for_task[task_id]
+
+# This is a method used for sampled logging. If you are expecting too many logs, you can use this method to print the log with a small probability p
+def sampled_log(p, log):
+    if random.random() > 1-p:
+        print(log)
+
+def show_image(image_id):
+    imagenet_data = torchvision.datasets.Caltech101(root=Constants.CALTECH_DATASET_LOCATION, download=True)
+    plt.imshow(imagenet_data[int(image_id)][0].resize((200,200)))
+    plt.show()

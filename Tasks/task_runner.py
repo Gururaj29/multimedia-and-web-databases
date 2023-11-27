@@ -3,7 +3,6 @@ from Tasks import task_1
 from Tasks import task_2
 from Tasks import task_3
 from Tasks import task_4
-from Tasks import task_5
 
 task_runner_map = {
     0: task_0.Execute,
@@ -11,7 +10,6 @@ task_runner_map = {
     2: task_2.Execute,
     3: task_3.Execute,
     4: task_4.Execute,
-    5: task_5.Execute,
 }
 
 def Run(task_id, arguments, db):

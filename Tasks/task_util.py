@@ -1,8 +1,6 @@
 from util import Constants
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-
-from util import Constants
 import matplotlib.pyplot as plt
 import torchvision
 

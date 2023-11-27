@@ -4,6 +4,8 @@ enums.feature_model = ["RESNET", "CM", "HOG", "AvgPool", "L3", "FC"]
 enums.dimensionality_reduction_technique = ["SVD", "NNMF", "LDA", "kmeans"]
 enums.label = ['gerenuk', 'hawksbill', 'headphone', 'ant', 'butterfly', 'lamp', 'strawberry', 'water_lilly', 'chandelier', 'dragonfly', 'crab', 'pagoda', 'dollar_bill', 'emu', 'inline_skate', 'platypus', 'dalmatian', 'cup', 'airplanes', 'joshua_tree', 'cougar_body', 'grand_piano', 'trilobite', 'brontosaurus', 'wild_cat', 'pigeon', 'dolphin', 'soccer_ball', 'wrench', 'scorpion', 'flamingo_head', 'nautilus', 'accordion', 'cougar_face', 'pyramid', 'camera', 'barrel', 'schooner', 'cellphone', 'panda', 'revolver', 'lobster', 'menorah', 'lotus', 'stapler', 'crocodile', 'chair', 'helicopter', 'minaret', 'starfish', 'ceiling_fan', 'ketch', 'mayfly', 'wheelchair', 'bass', 'yin_yang', 'crocodile_head', 'saxophone', 'beaver', 'mandolin', 'bonsai', 'Leopards', 'car_side', 'ibis', 'electric_guitar', 'kangaroo', 'stegosaurus', 'ferry', 'snoopy', 'umbrella', 'rhino', 'okapi', 'watch', 'brain', 'gramophone', 'scissors', 'rooster', 'cannon', 'binocular', 'anchor', 'octopus', 'buddha', 'laptop', 'windsor_chair', 'hedgehog', 'pizza', 'euphonium', 'stop_sign', 'Motorbikes', 'sea_horse', 'flamingo', 'ewer', 'garfield', 'crayfish', 'Faces_easy', 'Faces', 'sunflower', 'llama', 'elephant', 'tick', 'metronome']
 enums.latent_semantics = ['ls1', 'ls2', 'ls3', 'ls4']
+enums.classifier = ['NN', 'DT', 'PPR']
+enums.relevance_feedback_systems = ['svm', 'prob']
 # Removed 'BACKGROUND_Google' as all images have odd id ---> No image or label FDs
 
 # Tasks
@@ -22,7 +24,6 @@ usage = ""
     [[tasks.0.args]]
     id = "image"
     type = "bool"
-    enum = "feature_model"
     description = "Uses image vectors if this is specified"
 
 [tasks.1]
@@ -71,7 +72,7 @@ usage = ""
 description = '''
 Implement a program which,
     – given even-numbered Caltec101 images,
-        ∗ creates an m-NN classifer (for a user specified m),
+        ∗ creates an m-NN classifier (for a user specified m),
         ∗ creates a decision-tree classifier,
         ∗ creates a PPR based clasifier.
         For this task, you can use feature space of your choice.
@@ -83,14 +84,25 @@ value.
 usage = ""
 
     [[tasks.3.args]]
+    id = "classifier"
+    type = "str"
+    enum = "classifier"
+    description = "type for classifier to be used"
+
+    [[tasks.3.args]]
     id = "m"
     type = "int"
     description = "m nearest neighbors for NN classifier"
 
     [[tasks.3.args]]
-    id = "image_id"
-    type = "int"
-    description = "Query image ID"
+    id = "p"
+    type = "float"
+    description = "random jump probability for PPR classifier"
+
+    [[tasks.3.args]]
+    id = "image_ids"
+    type = "str"
+    description = "Query image IDs separated by commas (no space)"
 
 [tasks.4]
 description = '''
@@ -101,7 +113,12 @@ description = '''
     - Implement a similar image search algorithm using this index structure storing the even numbered Caltec101 images and a visual model of your choice (the combined visual model must have at least 256 dimensions): for a given query image and integer t
         - Visualizes t most similar images
         - outputs the number of unique and overall number of images considered during the process
-
+    
+    For the relevance feedback system,
+    Let us consider the tag set “Very Relevant (R+)”, “Relevant (R)”, “Irrelevant (I)”, and “Very Irrelevant (I-)”. Implement
+        – an SVM based relevance feedback system,
+        – a probabilistic relevance feedback system
+    which enable the user to tag some of the results returned by 4b as and then return a new set of ranked results, relying on the feedback system selected by the user, either by revising the query or by re-ordering the existing results.
 '''
 usage = ""
 
@@ -125,17 +142,8 @@ usage = ""
     type = "int"
     description = "Query image ID"
 
-[tasks.5]
-description = '''
-Let us consider the tag set “Very Relevant (R+)”, “Relevant (R)”, “Irrelevant (I)”, and “Very Irrelevant (I-)”. Implement
-    – an SVM based relevance feedback system,
-    – a probabilistic relevance feedback system
-which enable the user to tag some of the results returned by 4b as and then return a new set of ranked results, relying on the feedback system selected by the user, either by revising the query or by re-ordering the existing results.
-'''
-usage = ""
-
-    [[tasks.5.args]]
-    id = "relevance_feedback_system"
+    [[tasks.4.args]]
+    id = "rfs"
     type = "str"
-    description = "Type of relevance feedback system - SVM or probabilistic"
-
+    enum = "relevance_feedback_systems"
+    description = "Type of relevance feedback system"

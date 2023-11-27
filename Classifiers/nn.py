@@ -23,4 +23,4 @@ class NN:
         '''
         k_closest_neighbors = heapq.nlargest(self.k, self.train_data, key=lambda x: similarity_measures.l2_norm(X, x[0]))
         label_counter = Counter(map(lambda x: x[1], k_closest_neighbors))
-        return label_counter.most_common(1)[0]
+        return label_counter.most_common(1)[0][0]

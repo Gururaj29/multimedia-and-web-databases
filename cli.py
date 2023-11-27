@@ -4,7 +4,11 @@ import textwrap
 from Tasks import task_runner
 import readline
 import storage
+import util
 
+# Constants
+UTIL_SHOW_IMAGE = "util_show_image"
+UTIL_CMDS = {UTIL_SHOW_IMAGE}
 
 ### internal methods
 
@@ -18,16 +22,23 @@ def extract_args(arg_parser):
             args[key] = value
     return task_id, args
 
+def run_util_task(task_id, arguments):
+    if task_id == UTIL_SHOW_IMAGE:
+        util.show_image(arguments["image_id"])
+
 def run_task(args, db):
     task_id, arguments = extract_args(args)
-    task_runner.Run(task_id, arguments, db)
+    if task_id in UTIL_CMDS:
+        run_util_task(task_id, arguments)
+    else:
+        task_runner.Run(task_id, arguments, db)
 
 def load_data():
     # load the database for interactive mode
     db = storage.Database()
     return db
 
-NUM_TASKS = 6
+NUM_TASKS = 5
 
 with open("cli.toml", "r") as config_file:
     cli_config = toml.load(config_file)
@@ -54,6 +65,10 @@ for i in range(NUM_TASKS):
         else:
             task_arg_parser.add_argument(flag, type=eval(arg["type"]), help=arg["description"], metavar='')
     task_arg_parser.set_defaults(task_id = i)
+
+task_arg_parser = subparsers.add_parser("show-image", help="Shows image")
+task_arg_parser.add_argument("image_id", type=int, help="Image ID to be shown")
+task_arg_parser.set_defaults(task_id = UTIL_SHOW_IMAGE)
 
 args = parser.parse_args()
 db = load_data()
