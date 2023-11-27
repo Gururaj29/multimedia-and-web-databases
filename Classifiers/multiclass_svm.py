@@ -1,6 +1,21 @@
 import collections
-from svm import SVM
+from Classifiers import svm
 import numpy as np
+import util
+
+tag_to_id = {
+    util.Constants.VeryIrrelevant: 0,
+    util.Constants.Irrelevant: 1,
+    util.Constants.Relevant: 2,
+    util.Constants.VeryRelevant: 3
+}
+
+id_to_tag = {
+    0: util.Constants.VeryIrrelevant,
+    1: util.Constants.Irrelevant,
+    2: util.Constants.Relevant,
+    3: util.Constants.VeryRelevant
+}
 
 class MulticlassSVM:
     """Class implementing a Support Vector Machine for multi-classification purposes based on one-vs-one strategy.
@@ -77,6 +92,9 @@ class MulticlassSVM:
         y : ndarray
             Ground-truth labels.
         """
+        # Change str tags to int ids
+        y = [tag_to_id[i] for i in y]
+
         # Check if labels are integers
         labels = np.unique(y)
         for label in labels:
@@ -99,11 +117,11 @@ class MulticlassSVM:
                 current_x = np.concatenate((x_arranged_numpy[i], x_arranged_numpy[j]))
                 current_y = np.concatenate((- np.ones((len(x_arranged_numpy[i]),), dtype=int),
                                            np.ones(len((x_arranged_numpy[j]),), dtype=int)))
-                svm = SVM(kernel=self._kernel, gamma=self._gamma, deg=self._deg, r=self._r, c=self._c)
-                svm.fit(current_x, current_y, verbosity=0)
-                for sv in svm.sv_x:
+                svm_ = svm.SVM(kernel=self._kernel, gamma=self._gamma, deg=self._deg, r=self._r, c=self._c)
+                svm_.fit(current_x, current_y, verbosity=0)
+                for sv in svm_.sv_x:
                     self._support_vectors.add(tuple(sv.tolist()))
-                svm_tuple = (svm, self._labels[i], self._labels[j])
+                svm_tuple = (svm_, self._labels[i], self._labels[j])
                 self._svm_list.append(svm_tuple)
         print('{0:d} support vectors found out of {1:d} data points'.format(len(self._support_vectors), len(x)))
 
@@ -123,12 +141,13 @@ class MulticlassSVM:
 
         Returns
         -------
-        ndarray
-            Results of the voting scheme.
+        id_to_tag[voting_results[0]] : str
+            String Result of the voting scheme in terms of tags.
         """
+        x = [x]
         voting_schema = np.zeros([len(x), 2, self._labels.shape[0]], dtype=float)
         for svm_tuple in self._svm_list:
-            prediction = svm_tuple[0].project(x)
+            prediction = [svm_tuple[0].project(np.array(x))]
             for i in range(len(prediction)):
                 if prediction[i] < 0:
                     voting_schema[i][0][svm_tuple[1]] += 1
@@ -147,4 +166,4 @@ class MulticlassSVM:
             else:
                 voting_results[i] = voting_schema[i][1].argmax()
 
-        return voting_results
+        return id_to_tag[voting_results[0]]
