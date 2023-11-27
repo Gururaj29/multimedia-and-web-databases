@@ -38,11 +38,6 @@ value.
 usage = ""
 
     [[tasks.1.args]]
-    id = "image_id"
-    type = "int"
-    description = "Query image ID"
-
-    [[tasks.1.args]]
     id = "k"
     type = "int"
     description = "top-k latent semantics"

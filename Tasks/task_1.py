@@ -7,11 +7,11 @@ from heapq import nlargest
 import util
 
 def Execute(arguments, db):
-    execute_internal(arguments['image_id'],arguments['k'], db)
+    execute_internal(arguments['k'], db)
 
-def execute_internal(image_id, k, db) :
+def execute_internal(k, db) :
 
-    imagenet_data = torchvision.datasets.Caltech101(root=Constants.CALTECH_DATASET_LOCATION, download=True)
+    # imagenet_data = torchvision.datasets.Caltech101(root=Constants.CALTECH_DATASET_LOCATION, download=True)
 
     #Internal Parameters
     fd = Constants.ResNet_Layer3_1024 
