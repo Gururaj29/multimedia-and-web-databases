@@ -173,10 +173,12 @@ def AnalysePredictions(db, predicted_labels):
             db: instance of storage.Database
             predicted_labels: dictionary of image_id (int) -> label_id (str)
     '''
-    harmonic_mean = lambda p, h: 2*h*p/(p+h) if p+h != 0 else 0
+    harmonic_mean = lambda p, h: 2*h*p/(p+h) if (p+h) > 0 else 0
     float_to_percent = lambda f: "%.2f"%f + '%'
 
-    true_labels = db.get_id_label_dict(False)
+    # TODO: Replace this with a method that only fetches image_id-label_id pair for all odd numbered images
+    true_labels = db.get_id_label_dict(False) | db.get_id_label_dict(True)
+
     all_labels = set(predicted_labels.values()) | set(true_labels.values())
     all_cms = {label: ConfusionMatrix() for label in all_labels}
     for image_id, predicted_label in predicted_labels.items():

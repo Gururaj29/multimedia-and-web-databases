@@ -1,4 +1,6 @@
 from util import Constants
+import numpy as np
+from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 import torchvision
 
@@ -26,3 +28,57 @@ def visualizeKSimilarImages(query_image_id, k_similar_images, k_tags=[], output_
     if output_filepath:
         fig.savefig(output_filepath, bbox_inches="tight")
     plt.show()
+
+
+def get_k_means_dr_mat(ls_data, feat_vector, k):
+    mat_k = np.zeros(k)
+    for i in range (k):
+        mat_k[i] = np.linalg.norm(ls_data[i] - feat_vector)
+    return mat_k
+
+def get_lda_transform(lda_model, feat_vector):
+    if len(np.array(feat_vector).shape) == 1:
+        feat_vector = np.array(feat_vector).reshape(1, -1)
+    if (np.array(feat_vector) < 0).any():
+        # Normalize the input matrix using Min-Max scaling
+        print("Using normalization as data contain negative value")
+        min_max_scaler = MinMaxScaler()
+        normalized_mat = min_max_scaler.fit_transform(np.array(feat_vector))
+    else:
+        # Use the original data if it doesn't contain negative values
+        normalized_mat = np.array(feat_vector)
+    return lda_model.transform(normalized_mat)[0]
+
+def get_one_k_mat(ls_data, drt, k, feat_vector):
+
+    if drt == Constants.SVD:
+        # a k*4000 matrix
+        V = ls_data[1][2]
+        # feat_vec_ls = np.dot(feat_vector, V.reshape(V.shape[0], k))
+        feat_vec_ls = np.dot(feat_vector, V.T)
+    elif drt == Constants.LDA:
+        # a model
+        feat_vec_ls = get_lda_transform(ls_data[1][0], feat_vector)
+    elif drt == Constants.NNMF:
+        # a k*4000 matrix
+        H = ls_data[1][1]
+        feat_vec_ls = np.dot(feat_vector, H.T)
+    elif drt == Constants.KMeans:
+        # a k*4000 centroids matrix
+        centroids = ls_data[1][0]
+        feat_vec_ls = get_k_means_dr_mat(centroids, feat_vector, k)
+    
+    return feat_vec_ls
+
+def get_imgs_k_mat(ls_data, drt):
+    if drt == Constants.SVD :
+        return ls_data[1][0]
+    if drt == Constants.KMeans:
+        return ls_data[1][1]
+    elif drt == Constants.LDA:
+        return ls_data[1][1]
+    else:
+        return ls_data[1][0]
+    
+def cosine_similarity(v1, v2):
+    return np.dot(v1,v2)/(np.linalg.norm(v1)*np.linalg.norm(v2))
