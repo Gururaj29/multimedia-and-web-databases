@@ -132,7 +132,7 @@ def predict_tags(qs, rfs, data):
 def visualize_k_images(qs, save_file=False, tags=[]):
     output_filepath = ""
     if save_file:
-        filename = "search_output_%s_%d_%d.png"%(qs.feedback_system, qs.k, qs.tag_iter) if qs.feedback_system else "search_output_%d.png"%qs.k
+        filename = "search_output_%s_%d_%d_%d.png"%(qs.feedback_system, qs.query_image_id, qs.k, qs.tag_iter) if qs.feedback_system else "search_output_%d_%d.png"%(qs.query_image_id, qs.k)
         output_filepath = os.path.join(util.Constants.TASK_4_LOCATION, filename)
         pathlib.Path(util.Constants.TASK_4_LOCATION).mkdir(parents=True, exist_ok=True)
     task_util.visualizeKSimilarImages(qs.query_image_id, qs.query_k_best_results, tags, output_filepath)
