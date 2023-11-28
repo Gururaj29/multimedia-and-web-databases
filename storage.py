@@ -126,6 +126,12 @@ class Database:
             return {}
         return self.id_label_dict[datasetType]
     
+    def get_distances_matrix_df(self, fd):
+        path = os.path.join(os.getcwd(), 'Outputs', 'distance_matrices', '%s.csv'%fd)
+        if not os.path.exists(path):
+            return None
+        return pd.read_csv(path, index_col=0)
+
     def write_latent_semantics_into_file(self, ls, fd, drt, k, ids, latent_semantics_mat, data):
         # also update in internal dictionaries
         if ls not in self.latent_semantics:

@@ -59,11 +59,6 @@ value.
 usage = ""
 
     [[tasks.2.args]]
-    id = "image_id"
-    type = "int"
-    description = "Query image ID"
-
-    [[tasks.2.args]]
     id = "c"
     type = "int"
     description = "C significant clusters"
