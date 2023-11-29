@@ -1,6 +1,7 @@
 import numpy as np
 from random import random
 from collections import Counter
+import random
 
 class Node:
     def __init__(self, feature=None, threshold=None, left=None, right=None,*,value=None):
@@ -34,7 +35,8 @@ class DecisionTree:
             leaf_value = self._most_common_label(y)
             return Node(value=leaf_value)
 
-        feat_idxs = np.random.choice(n_feats, self.n_features, replace=False)
+        feat_idxs = np.random.choice(n_feats, self.n_features//10, replace=False)
+#         print(feat_idxs)
 
         # find the best split
         best_feature, best_thresh = self._best_split(X, y, feat_idxs)
@@ -49,10 +51,14 @@ class DecisionTree:
     def _best_split(self, X, y, feat_idxs):
         best_gain = -1
         split_idx, split_threshold = None, None
+        n_threshes = 10
 
         for feat_idx in feat_idxs:
             X_column = X[:, feat_idx]
-            thresholds = np.unique(X_column)
+#             thresholds = np.unique(X_column)
+            t_min,t_max = np.min(X_column),np.max(X_column)
+            thresholds = np.array([t_min + i*(t_max-t_min)/n_threshes for i in range(n_threshes)])
+#             print(thresholds.shape)
 
             for thr in thresholds:
                 # calculate the information gain
@@ -92,8 +98,8 @@ class DecisionTree:
         return left_idxs, right_idxs
 
     def _entropy(self, y):
-        hist = np.bincount(y)
-        ps = hist / len(y)
+        a, b = np.unique(y, return_counts=True)
+        ps = b / len(y)
         return -np.sum([p * np.log(p) for p in ps if p>0])
 
 
@@ -103,7 +109,7 @@ class DecisionTree:
         return value
 
     def predict(self, X):
-        return np.array([self._traverse_tree(x, self.root) for x in X])
+        return self._traverse_tree(X, self.root) 
 
     def _traverse_tree(self, x, node):
         if node.is_leaf_node():

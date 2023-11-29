@@ -4,6 +4,8 @@ from Tasks import task_util
 from Classifiers import svm, multiclass_svm
 import os
 import pathlib
+from RFS import ProbabilisticRelevanceFeedbackSystem
+import numpy as np
 
 TASK_ID = 4
 
@@ -11,7 +13,7 @@ RelevantTags = {util.Constants.Relevant, util.Constants.VeryRelevant}
 IrrevantTags = {util.Constants.Irrelevant, util.Constants.VeryIrrelevant}
 
 class QueryState:
-    def __init__(self, query_image_id, k, feedback_system, query_k_best_results = [], query_results = set()):
+    def __init__(self, query_image_id, k, feedback_system, query_image, query_k_best_results = [], query_results = set()):
         self.query_k_best_results = query_k_best_results
         self.query_results = query_results
         self.query_image_id = query_image_id
@@ -23,6 +25,8 @@ class QueryState:
         self.iter = 0 # search iterations
         self.tag_iter = 0 # tag iterations
         self.feedback_system = feedback_system # name of the feedback system being used
+        self.feature_significance = list()
+        self.query_image = query_image
     
     def setKBestResults(self, k_best_results):
         self.query_k_best_results = k_best_results
@@ -54,6 +58,12 @@ class QueryState:
         self.image_tags[image_id] = tag
         if tag in IrrevantTags:
             self.irrelevant_images.add(image_id)
+
+    def set_feature_significance(self, significance_list) :
+        self.feature_significance = significance_list
+
+    def get_feature_significance(self) :
+        return self.feature_significance
     
     def getSearchExcludeSet(self):
         return self.irrelevant_images | self.predicted_irrelevant_images
@@ -81,8 +91,7 @@ def get_relevence_feedback_system(rfs_cli):
     if rfs_type == util.Constants.SVMRelevanceFeedbackSystem:
         return rfs_type, multiclass_svm.MulticlassSVM(kernel="linear")
     elif rfs_type == util.Constants.ProbabilisticRelevanceFeedbackSystem:
-        # TODO: replace this with prob RFS
-        return rfs_type, svm.SVM()
+        return rfs_type, ProbabilisticRelevanceFeedbackSystem.ProbabilisticRelevanceFeedbackSystem()
     return None, None
 
 def execute_internal(L, h, t, query_image_id, db, rfs_type, rfs):
@@ -90,14 +99,14 @@ def execute_internal(L, h, t, query_image_id, db, rfs_type, rfs):
     train_data = db.get_feature_descriptors(fd, train_data=True)
     query_image = db.get_feature_descriptors(fd, train_data=False).get(query_image_id)
     l = lsh.LSH(train_data, len(query_image), L, h)
-    qs = QueryState(query_image_id, t, rfs_type)
+    qs = QueryState(query_image_id, t, rfs_type, query_image)
     search = l.search(query_image, t)
     perform_lsh_search(search, qs)
     qs.setKBestResults(search.bestKResults(train_data))
     visualize_k_images(qs, save_file=True)
     if rfs_type:
         # run feedback loop if rfs_type is not None
-        run_relevance_feedback_loop(rfs, qs, search, train_data)
+        run_relevance_feedback_loop(rfs_type,rfs, qs, search, train_data)
 
 def perform_lsh_search(lshSearch, qs):
     qs.query_results = lshSearch.search(qs.getSearchExcludeSet())
@@ -106,27 +115,35 @@ def perform_lsh_search(lshSearch, qs):
         print("Running search iteration number: %d"%qs.iter)
     lshSearch.printSearchAnalytics()
 
-def run_relevance_feedback_loop(rfs, qs, search, data):
+def run_relevance_feedback_loop(rfs_type,rfs, qs, search, data):
     tagging_prompt(qs, qs.query_k_best_results)
     images, tags = qs.getImagesAndTags() # for RFS models
-    rfs.fit([data[image] for image in images], tags)
+    if rfs_type == util.Constants.SVMRelevanceFeedbackSystem :
+        rfs.fit([data[image] for image in images], tags)
+    else :
+        rfs.fit(qs.query_image, np.array([data[image] for image in images]), tags)
+        qs.set_feature_significance(rfs.get_significance())
     while not qs.gotKRelevantImages() and qs.iter <= 100: # kept limit on the number of iterations for now
         perform_lsh_search(search, qs)
         predict_tags(qs, rfs, data)
-    qs.setKBestResults(search.bestKResults(data, qs.getSearchExcludeSet()))
+    if rfs_type == util.Constants.SVMRelevanceFeedbackSystem :
+        qs.setKBestResults(search.bestKResults(data, qs.getSearchExcludeSet()))
+    else :
+        qs.setKBestResults(search.bestKResults_Probabilistic(data, qs.get_feature_significance(),qs.getSearchExcludeSet()))
     visualize_k_images(qs, save_file=True)
     if boolean_prompt("Want to retag images"):
-        run_relevance_feedback_loop(rfs, qs, search, data)
+        run_relevance_feedback_loop(rfs_type, rfs, qs, search, data)
 
 def predict_tags(qs, rfs, data):
     image_ids_with_updated_tags = []
     tags = []
     for image_id in qs.query_results:
         if not qs.getImageTag(image_id):
-            tag = rfs.predict(data[image_id])
+            if(qs.feedback_system == util.Constants.SVMRelevanceFeedbackSystem) :
+                tag = rfs.predict(data[image_id])
             # print("Tag predicted for image-id " + str(image_id) + ": " + tag)
-            image_ids_with_updated_tags.append(image_id)
-            tags.append(tag)
+                image_ids_with_updated_tags.append(image_id)
+                tags.append(tag)
     qs.setTags(image_ids_with_updated_tags, tags, predicted = True)
 
 def visualize_k_images(qs, save_file=False, tags=[]):
