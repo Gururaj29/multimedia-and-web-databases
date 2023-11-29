@@ -74,10 +74,26 @@ class DBScan:
             if cluster_id not in cluster_points: cluster_points[cluster_id] = []
             cluster_points[cluster_id].append(point)
         return {cluster_id: np.mean(cluster_points[cluster_id], axis=0) for cluster_id in cluster_points}
+    
+    def __minMaxDistance(self, data, label):
+        min_max = {}
+        for cluster_id in self.centroids:    
+            min_dist = np.inf
+            for d in data:
+                if self.clusters[d] == cluster_id:
+                    dist = util.euclidean_distance(data[d], label)
+                    if dist < min_dist: 
+                        min_dist = dist
+            min_max[cluster_id] = min_dist
+        return dict(sorted(min_max.items(), key=lambda x: x[1]))
 
-    def getCSignicantClusters(self, point):
-        most_significant_clusters = heapq.nlargest(self.c, self.centroids, key=lambda x: similarity_measures.l2_norm(point, self.centroids[x]))
-        return most_significant_clusters
+    def getCSignicantClusters(self, data, label):
+        min_dist_dict = self.__minMaxDistance(data=data, label=label)
+        return list(min_dist_dict.keys())[:self.c]
+
+    # def getCSignicantClusters(self, point):
+    #     most_significant_clusters = heapq.nlargest(self.c, self.centroids, key=lambda x: similarity_measures.l2_norm(point, self.centroids[x]))
+    #     return most_significant_clusters
 
     def getNumberOfClusters(self):
         return len(self.centroids)
