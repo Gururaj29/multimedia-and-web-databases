@@ -46,7 +46,7 @@ def execute_internal(k, db) :
             similarity_dict[label] = task_util.cosine_similarity(feat_vec_k,label_k_dict[label])
     
         image_label_dict[image_id] = max(similarity_dict.items(), key = lambda x: x[1])[0]
-    
+
     if(not os.path.exists(Constants.TASK_1_LOCATION)) :
         os.makedirs(Constants.TASK_1_LOCATION)
 
