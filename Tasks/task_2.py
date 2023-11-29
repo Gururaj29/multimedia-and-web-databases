@@ -4,6 +4,13 @@ import pandas as pd
 from tqdm import tqdm
 import os
 import pathlib
+import matplotlib.pyplot as plt
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+from PIL import Image
+import numpy as np
+import matplotlib.pyplot as plt
+from DimensionalityReductionTechniques import pca
+from sklearn.manifold import MDS
 
 TASK_ID = 2
 
@@ -25,6 +32,14 @@ def execute_internal(c, db):
     test_data = db.get_feature_descriptors(fd, train_data=False)
     test_labels = db.get_id_label_dict(train_data=False)
 
+    data = [train_data[i] for i in train_data]
+    data_clusters = [cluster.clusters[i] for i in train_data]
+
+    mds = MDS(n_components=2, normalized_stress = "auto")
+    transformed_data = mds.fit_transform(data)
+    plt.scatter(transformed_data[:, 0], transformed_data[:, 1], c=np.array(data_clusters))
+    plt.show()
+
     output_data = {"Image IDs":[], "Predicted Labels":[], "True Labels":[]}
     predictions = {}
     for image_id, image_vector in tqdm(test_data.items()):
@@ -39,6 +54,35 @@ def execute_internal(c, db):
     pathlib.Path(util.Constants.TASK_2_LOCATION).mkdir(parents=True, exist_ok=True)
     pd.DataFrame(output_data).set_index("Image IDs").to_csv(os.path.join(util.Constants.TASK_2_LOCATION, 'dbscan_%d.csv'%c))
     return
+
+def thumbnail_visualization(image_paths, positions): 
+    # Set up the figure and axis for the plot
+    # plt.figure(figsize=(20,20))
+    fig, ax = plt.subplots(figsize=(20,20))
+
+    # Loop through the images, resize them, and plot them as points in the scatter plot
+    for path, (x, y) in zip(image_paths, positions):
+        img = Image.open(path)
+        
+        # Resize the image to thumbnail size
+        img.thumbnail((40, 40), Image.Resampling.LANCZOS)
+        
+        # Convert image to numpy array
+        im_array = np.asarray(img)
+        
+        # Create an annotation box (a BboxImage)
+        imagebox = OffsetImage(im_array, zoom=1)
+        imagebox.image.axes = ax
+        
+        # Create an AnnotationBbox for each image and add it to the plot
+        ab = AnnotationBbox(imagebox, (x, y), frameon=False, boxcoords="data")
+        ax.add_artist(ab)
+    
+    # Set limits and labels as needed
+    ax.set_xlim(min(np.array(positions)[:,0]), max(np.array(positions)[:,0]))
+    ax.set_ylim(min(np.array(positions)[:,1]), max(np.array(positions)[:,1]))
+    # Show the plot
+    plt.show()
 
 def get_cluster_signifance(cluster, label_train_data, no_of_clusters, c):
     '''
