@@ -10,11 +10,11 @@ import util
 
 class PPR:
     '''
-        Placeholder class for personalized pagerank classifier
+        class for personalized pagerank classifier
     '''
     def __init__(self, random_jump_probability = 0.15) -> None:
         self.random_jump_probability = random_jump_probability
-        self.num_walks = 100
+        self.num_walks = 1000000
         
         self.label_features = self.get_label_dict("./Outputs/train/labels/resnet_fc_1000")
         self.training_images_features = self.get_features_dict("./Outputs/train/features/resnet_fc_1000")
