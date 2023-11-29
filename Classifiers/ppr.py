@@ -14,7 +14,7 @@ class PPR:
     '''
     def __init__(self, random_jump_probability = 0.15) -> None:
         self.random_jump_probability = random_jump_probability
-        self.num_walks = 1000000
+        self.num_walks = 1000
         
         self.label_features = self.get_label_dict("./Outputs/train/labels/resnet_fc_1000")
         self.training_images_features = self.get_features_dict("./Outputs/train/features/resnet_fc_1000")
@@ -30,10 +30,6 @@ class PPR:
             self.graph.add_node(image_node)
             
             self.seeds = self.get_seeds(self.graph, image_node, image_features_2d, self.label_features)[:1]
-            # if self.random_jump_probability < 0.5:
-            #     self.seeds = self.seeds[:1]
-            # else:
-            #     self.seeds = self.seeds[:1]
 
             pagerank = self.personalized_page_rank(graph=self.graph, seeds=self.seeds, source=image_node, num_walks=self.num_walks, beta=self.random_jump_probability)
             
@@ -60,7 +56,7 @@ class PPR:
         seeds = list(sorted_seeds.keys())
         for label in seeds[:5]:
             # graph.edges[image_node, label_node]['weight'] = new_similarity_score
-            graph.add_edge(image_node, label, weight=sorted_seeds[label])
+            graph.add_edge(image_node, label, weight=1)
         
         return seeds
         
