@@ -134,6 +134,10 @@ class LSH:
             if not self.results: self.search()
             return heapq.nlargest(self.k, self.getFilteredResults(exclude_set), key=lambda x: similarity_measures.l2_norm(data[x], self.query_vector))
         
+        def bestKResults_Probabilistic(self,data,feature_sig,exclude_set=set()) :
+            if not self.results: self.search()
+            return heapq.nlargest(self.k, self.getFilteredResults(exclude_set),key = lambda x: similarity_measures.cosine_similarity(np.multiply(np.array(data[x]),np.array(feature_sig)), self.query_vector))
+        
         def printSearchAnalytics(self):
             if not self.results: self.search()
             print("Overall number of images fetched by all hash functions: ", self.getOverallNumberOfImagesFetched())
