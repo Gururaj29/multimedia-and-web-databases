@@ -42,7 +42,7 @@ def get_classifier(arguments):
     if classifier_type == util.Constants.NearestNeighborClassifier:
         return "%s_%d"%(classifier_type, arguments.get('m')), nn.NN(arguments.get('m'))
     elif classifier_type == util.Constants.PersonalizedPageRankClassifier:
-        return "%s_%.2f"%(classifier_type, arguments.get('p')), ppr.PPR(arguments.get('p'))
+        return classifier_type, ppr.PPR(arguments.get('p'))
     return classifier_type, decision_trees.DecisionTree()
 
 def execute_internal(classifier_namespace, classifier, query_image_ids, db, debug=False):
@@ -53,7 +53,9 @@ def execute_internal(classifier_namespace, classifier, query_image_ids, db, debu
     train_data = db.get_feature_descriptors(fd, train_data=True)
     train_labels_dict = db.get_id_label_dict(train_data=True)
     train_data_pairs = [(train_data[i], train_labels_dict[i]) for i in train_data]
-    classifier.fit([i[0] for i in train_data_pairs], [i[1] for i in train_data_pairs])
+
+    if classifier_namespace != util.Constants.PersonalizedPageRankClassifier:
+        classifier.fit([i[0] for i in train_data_pairs], [i[1] for i in train_data_pairs])
     
     test_data = db.get_feature_descriptors(fd, train_data=False)
     test_labels = db.get_id_label_dict(train_data=False)
@@ -62,7 +64,10 @@ def execute_internal(classifier_namespace, classifier, query_image_ids, db, debu
     output_data = {"Image IDs":[], "Predicted Labels":[], "True Labels":[]}
     predictions = {}
     for image_id, image_vector in tqdm(input_data.items()):
-        predicted_label = classifier.predict(image_vector)
+        if classifier_namespace == util.Constants.PersonalizedPageRankClassifier:
+            predicted_label = classifier.predict(image_id)
+        else:
+            predicted_label = classifier.predict(image_vector)
         predictions[image_id] = predicted_label
         output_data["Image IDs"].append(image_id)
         output_data["Predicted Labels"].append(predicted_label)
