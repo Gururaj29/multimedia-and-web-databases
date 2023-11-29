@@ -121,7 +121,7 @@ class LSH:
         
         def getFilteredResults(self, exclude_set=()):
             exclude_set = exclude_set if exclude_set else self.exclude_set
-            return self.results - self.exclude_set
+            return self.results - exclude_set
 
         def search(self, exclude_set=set()):
             self.exclude_set = exclude_set
