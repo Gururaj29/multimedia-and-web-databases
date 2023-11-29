@@ -94,7 +94,7 @@ class HashLayer:
             return self.getLayerSearchResults()
 
 class LSH:
-    def __init__(self, data, dim, l=10, h=10, w=0.001):
+    def __init__(self, data, dim, l=10, h=10, w=0.003):
         self.hashLayers = [HashLayer(h, data, w, dim) for i in range(l)]
     
     def search(self, query_vector, k):
@@ -131,11 +131,11 @@ class LSH:
             return self.getFilteredResults()
         
         def bestKResults(self, data, exclude_set=set()):
-            if not self.results: self.search()
+            if not self.results: self.search(exclude_set)
             return heapq.nlargest(self.k, self.getFilteredResults(exclude_set), key=lambda x: similarity_measures.l2_norm(data[x], self.query_vector))
         
         def bestKResults_Probabilistic(self,data,feature_sig,exclude_set=set()) :
-            if not self.results: self.search()
+            if not self.results: self.search(exclude_set)
             return heapq.nlargest(self.k, self.getFilteredResults(exclude_set),key = lambda x: similarity_measures.cosine_similarity(np.multiply(np.array(data[x]),np.array(feature_sig)), self.query_vector))
         
         def printSearchAnalytics(self):
