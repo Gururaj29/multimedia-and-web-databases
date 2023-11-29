@@ -20,7 +20,7 @@ def execute_internal(c, db):
     number_of_clusters = cluster.getNumberOfClusters()
     c = min(c, number_of_clusters) # if c is more than the number of clusters, then we can only use number_of_clusters
 
-    cluster_signifance_list = get_cluster_signifance(cluster, label_train_data, number_of_clusters, c)
+    cluster_signifance_list = get_cluster_signifance(cluster, train_data, label_train_data, number_of_clusters, c)
 
     test_data = db.get_feature_descriptors(fd, train_data=False)
     test_labels = db.get_id_label_dict(train_data=False)
@@ -28,19 +28,19 @@ def execute_internal(c, db):
     output_data = {"Image IDs":[], "Predicted Labels":[], "True Labels":[]}
     predictions = {}
     for image_id, image_vector in tqdm(test_data.items()):
-        predicted_label = predict_label(cluster, image_vector, label_train_data, cluster_signifance_list)
+        predicted_label = predict_label(cluster, image_vector, train_data, label_train_data, cluster_signifance_list)
         predictions[image_id] = predicted_label
         output_data["Image IDs"].append(image_id)
         output_data["Predicted Labels"].append(predicted_label)
         output_data['True Labels'].append(test_labels.get(image_id))
-
+    
     util.AnalysePredictions(db, predictions)
 
     pathlib.Path(util.Constants.TASK_2_LOCATION).mkdir(parents=True, exist_ok=True)
     pd.DataFrame(output_data).set_index("Image IDs").to_csv(os.path.join(util.Constants.TASK_2_LOCATION, 'dbscan_%d.csv'%c))
     return
 
-def get_cluster_signifance(cluster, label_train_data, no_of_clusters, c):
+def get_cluster_signifance(cluster, train_data, label_train_data, no_of_clusters, c):
     '''
         For each label vector, computes c significant cluster
         Returns a list of dictionaries, each entry i contains a dictionary di which contains 
@@ -51,7 +51,7 @@ def get_cluster_signifance(cluster, label_train_data, no_of_clusters, c):
     cluster_significance = [initiate_cluster_dicts(no_of_clusters) for i in range(c)]
 
     for label in label_train_data:
-        c_significant_clusters = cluster.getCSignicantClusters(label_train_data[label])
+        c_significant_clusters = cluster.getCSignicantClusters(train_data, label_train_data[label])
         for i in range(len(c_significant_clusters)):
             cluster_id = c_significant_clusters[i]
             cluster_significance[i][cluster_id].add(label)
@@ -59,15 +59,15 @@ def get_cluster_signifance(cluster, label_train_data, no_of_clusters, c):
     return cluster_significance
 
 
-def predict_label(cluster, image_vector, label_train_data, cluster_significance_list):
-    most_likely_labels = get_most_likely_labels(cluster, image_vector, label_train_data, cluster_significance_list)
+def predict_label(cluster, image_vector, train_data, label_train_data, cluster_significance_list):
+    most_likely_labels = get_most_likely_labels(cluster, image_vector, train_data, label_train_data, cluster_significance_list)
     return predict_label_from_most_likely_labels(image_vector, label_train_data, most_likely_labels)
 
-def get_most_likely_labels(cluster, image_vector, label_train_data, cluster_significance_list):
+def get_most_likely_labels(cluster, image_vector, train_data, label_train_data, cluster_significance_list):
     '''
         Iterates over cluster significance list and returns the shortest non-empty set of labels which have same order cluster significance as the query image
     '''
-    c_significant_clusters = cluster.getCSignicantClusters(image_vector)
+    c_significant_clusters = cluster.getCSignicantClusters(train_data, image_vector)
     likely_labels = set(label_train_data.keys())
     for i in range(len(c_significant_clusters)):
         next_likely_labels = likely_labels & cluster_significance_list[i][c_significant_clusters[i]]
