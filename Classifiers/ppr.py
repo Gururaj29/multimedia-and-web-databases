@@ -52,9 +52,17 @@ class PPR:
 
             similarity_score = cosine_similarity(image_features, label_features_2d)[0][0]
 
-            graph.add_edge(image_node, label_node, weight=similarity_score)
+            # graph.add_edge(image_node, label_node, weight=similarity_score)
             seeds[label_node] = similarity_score
-        return sorted(seeds, key=lambda x:seeds[x], reverse=True)
+        
+        sorted_seeds = dict(sorted(seeds.items(), key=lambda item: item[1], reverse=True))
+        
+        seeds = list(sorted_seeds.keys())
+        for label in seeds[:5]:
+            # graph.edges[image_node, label_node]['weight'] = new_similarity_score
+            graph.add_edge(image_node, label, weight=sorted_seeds[label])
+        
+        return seeds
         
 
     def get_features_dict(self, folder_path):
