@@ -5,6 +5,8 @@ import numpy as np
 import torchvision
 from heapq import nlargest
 import util
+import os 
+import csv
 
 def Execute(arguments, db):
     execute_internal(arguments['k'], db)
@@ -54,13 +56,27 @@ def execute_internal(k, db) :
             # similarity_dict[label] = task_util.cosine_similarity(feat_vec,train_labels_fds[label])
 
     
-
+        # print(max(similarity_dict.items(), key = lambda x: x[1]))
         image_label_dict[image_id] = max(similarity_dict.items(), key = lambda x: x[1])[0]
         # image_label_dict[image_id] = nlargest(10,similarity_dict,key = similarity_dict.get)
         # if(cnt > 50) :
-        #     break
+        # break
     # print(image_label_dict)
     # print(image_label_dict)
+    # save image_label_dict
+    if(not os.path.exists(Constants.TASK_1_LOCATION)) :
+        os.makedirs(Constants.TASK_1_LOCATION)
+
+    true_labels = db.get_id_label_dict(False)
+
+    with open(os.path.join(Constants.TASK_1_LOCATION,"task1_k_"+str(k)+".csv"), 'w', newline='') as csvfile:
+        fieldnames = ['image_id', 'MostLikelyLabel', 'TrueLabel']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for key in image_label_dict:
+            writer.writerow({'image_id': key, 'MostLikelyLabel': image_label_dict[key], 'TrueLabel': true_labels[key]})
+
     util.AnalysePredictions(db, image_label_dict)
         
 
