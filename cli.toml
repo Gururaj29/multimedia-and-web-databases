@@ -63,6 +63,11 @@ usage = ""
     type = "int"
     description = "C significant clusters"
 
+    [[tasks.2.args]]
+    id = "visualize"
+    type = "bool"
+    description = "To visualize the clusters"
+
 [tasks.3]
 description = '''
 Implement a program which,

@@ -15,10 +15,10 @@ from sklearn.manifold import MDS
 TASK_ID = 2
 
 def Execute(arguments, db):
-    c = arguments["c"]
-    execute_internal(c, db)
+    c, visualize = arguments["c"], arguments.get("visualize") == True
+    execute_internal(c, db, visualize)
 
-def execute_internal(c, db):
+def execute_internal(c, db, visualize):
     fd = util.get_feature_model(TASK_ID)
     train_data = db.get_feature_descriptors(fd)
     label_train_data = db.get_label_feature_descriptors(fd)
@@ -32,13 +32,14 @@ def execute_internal(c, db):
     test_data = db.get_feature_descriptors(fd, train_data=False)
     test_labels = db.get_id_label_dict(train_data=False)
 
-    data = [train_data[i] for i in train_data]
-    data_clusters = [cluster.clusters[i] for i in train_data]
+    if visualize:
+        data = [train_data[i] for i in train_data]
+        data_clusters = [cluster.clusters[i] for i in train_data]
 
-    mds = MDS(n_components=2, normalized_stress = "auto")
-    transformed_data = mds.fit_transform(data)
-    plt.scatter(transformed_data[:, 0], transformed_data[:, 1], c=np.array(data_clusters))
-    plt.show()
+        mds = MDS(n_components=2, normalized_stress = "auto")
+        transformed_data = mds.fit_transform(data)
+        plt.scatter(transformed_data[:, 0], transformed_data[:, 1], c=np.array(data_clusters))
+        plt.show()
 
     output_data = {"Image IDs":[], "Predicted Labels":[], "True Labels":[]}
     predictions = {}

@@ -60,7 +60,7 @@ for i in range(NUM_TASKS):
         if "enum" in arg:
             options = cli_config["enums"][arg["enum"]]
             task_arg_parser.add_argument(flag, type=eval(arg["type"]), help=arg["description"] + ". Allowed options are: " + ', '.join(options), choices=options, metavar='')
-        elif "bool" in arg:
+        elif 'type' in arg and arg['type'] == "bool":
             task_arg_parser.add_argument(flag, help = arg["description"],action=argparse.BooleanOptionalAction)
         else:
             task_arg_parser.add_argument(flag, type=eval(arg["type"]), help=arg["description"], metavar='')
