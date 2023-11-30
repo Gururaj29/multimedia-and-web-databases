@@ -125,7 +125,7 @@ class MulticlassSVM:
                     self._support_vectors.add(tuple(sv.tolist()))
                 svm_tuple = (svm_, self._labels[i], self._labels[j])
                 self._svm_list.append(svm_tuple)
-        print('{0:d} support vectors found out of {1:d} data points'.format(len(self._support_vectors), len(x)))
+        # print('{0:d} support vectors found out of {1:d} data points'.format(len(self._support_vectors), len(x)))
 
     def predict(self, x: np.ndarray) -> np.ndarray:
         """Predict the class of the given data points. The voting process is based on the standard predict function

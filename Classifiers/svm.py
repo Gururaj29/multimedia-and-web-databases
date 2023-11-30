@@ -179,7 +179,7 @@ class SVM:
 
         # Print results according to verbosity
         if verbosity in {1, 2}:
-            print(f"{len(self._lambdas):d} support vectors found out of {n_samples:d} data points")
+            # print(f"{len(self._lambdas):d} support vectors found out of {n_samples:d} data points")
             if verbosity == 2:
                 for i in range(len(self._lambdas)):
                     print(f"{i + 1:d}) X: {self._sv_x[i]}\ty: {self._sv_y[i]}\tlambda: {self._lambdas[i]:.2f}")
